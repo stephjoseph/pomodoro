@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const defaultTheme = require('tailwindcss/defaultTheme');
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -13,8 +14,11 @@ export default {
         'pale-grey': '#EFF1FA',
         'midnight-navy': '#161932',
       },
+
       fontFamily: {
         sans: ['"Kumbh Sans"', ...defaultTheme.fontFamily.sans],
+        serif: ['"Roboto Slab"', ...defaultTheme.fontFamily.serif],
+        mono: ['"Space Mono"', ...defaultTheme.fontFamily.mono],
       },
     },
   },
