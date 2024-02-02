@@ -86,7 +86,7 @@ function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [cycleCount]);
+  }, [cycleCount, togglePause]);
 
   const totalSeconds =
     mode === "pomodoro"
