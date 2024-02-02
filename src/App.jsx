@@ -7,39 +7,88 @@ import "react-circular-progressbar/dist/styles.css";
 import iconSettings from "/assets/icon-settings.svg";
 
 function App() {
-  const [secondsLeft, setSecondsLeft] = useState(25 * 60);
   const [isPaused, setIsPaused] = useState(true);
+  const [mode, setMode] = useState("pomodoro"); // pomodoro/shortBreak/null
+  const [secondsLeft, setSecondsLeft] = useState(0.1 * 60);
+  const [cycleCount, setCycleCount] = useState(0); // New state for cycle count
 
   const secondsLeftRef = useRef(secondsLeft);
   const isPausedRef = useRef(isPaused);
+  const modeRef = useRef(mode);
 
   const tick = () => {
     secondsLeftRef.current--;
     setSecondsLeft(secondsLeftRef.current);
   };
+
   const togglePause = () => {
     setIsPaused((prevIsPaused) => !prevIsPaused);
     isPausedRef.current = !isPausedRef.current;
   };
 
   useEffect(() => {
+    function switchMode() {
+      let nextMode;
+      let nextSeconds;
+
+      if (modeRef.current === "pomodoro") {
+        nextMode = "shortBreak";
+      } else if (modeRef.current === "shortBreak" && cycleCount === 4) {
+        nextMode = "longBreak";
+      } else {
+        nextMode = "pomodoro";
+      }
+
+      if (nextMode === "pomodoro") {
+        nextSeconds = 0.1 * 60;
+      } else if (nextMode === "shortBreak") {
+        nextSeconds = 0.05 * 60;
+      } else {
+        nextSeconds = 0.2 * 60;
+      }
+
+      setMode(nextMode);
+      modeRef.current = nextMode;
+
+      setSecondsLeft(nextSeconds);
+      secondsLeftRef.current = nextSeconds;
+
+      if (cycleCount === 4 && nextMode === "pomodoro") {
+        togglePause();
+      }
+
+      // Increment cycle count on short break
+      if (nextMode === "shortBreak") {
+        setCycleCount((prevCycleCount) => prevCycleCount + 1);
+      }
+    }
+
     const interval = setInterval(() => {
       if (isPausedRef.current) {
         return;
+      }
+      if (secondsLeftRef.current === 0) {
+        return switchMode();
       }
 
       tick();
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [cycleCount]);
 
-  const totalSeconds = 25 * 60;
-  const percentage = Math.round((secondsLeft / totalSeconds) * 100);
+  const totalSeconds =
+    mode === "pomodoro"
+      ? 0.1 * 60
+      : mode === "shortBreak"
+        ? 0.05 * 60
+        : 0.2 * 60;
+  const percentage = (secondsLeft / totalSeconds) * 100;
 
   const minutes = Math.floor(secondsLeft / 60);
   let seconds = secondsLeft % 60;
   if (seconds < 10) seconds = "0" + seconds;
+
   return (
     <>
       <header className="w-full py-8">
@@ -50,13 +99,19 @@ function App() {
       <main className="flex w-full flex-col items-center gap-20 px-6">
         <div className="flex w-full max-w-[327px] flex-col items-center gap-12">
           <div className="flex w-full rounded-[32px] bg-midnight-navy p-2">
-            <div className="flex-1 rounded-3xl bg-salmon py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal text-midnight-blue">
+            <div
+              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "pomodoro" ? "bg-salmon text-midnight-blue" : "bg-transparent text-light-grey/40"}`}
+            >
               pomodoro
             </div>
-            <div className="flex-1 rounded-3xl py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal text-light-grey/40">
+            <div
+              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "shortBreak" ? "bg-salmon text-midnight-blue" : "bg-transparent text-light-grey/40"}`}
+            >
               short break
             </div>
-            <div className="flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal text-light-grey/40">
+            <div
+              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "longBreak" ? "bg-salmon text-midnight-blue" : "bg-transparent text-light-grey/40"}`}
+            >
               long break
             </div>
           </div>
