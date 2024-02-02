@@ -5,5 +5,5 @@
 @tailwind utilities;
 
 body {
-  @apply bg-midnight-blue font-sans text-light-grey;
+  @apply min-w-[300px] bg-midnight-blue font-sans text-light-grey;
 }
