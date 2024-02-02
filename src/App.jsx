@@ -10,7 +10,7 @@ function App() {
   const [isPaused, setIsPaused] = useState(true);
   const [mode, setMode] = useState("pomodoro"); // pomodoro/shortBreak/null
   const [secondsLeft, setSecondsLeft] = useState(0.1 * 60);
-  const [cycleCount, setCycleCount] = useState(0); // New state for cycle count
+  const [cycleCount, setCycleCount] = useState(3); // New state for cycle count
 
   const secondsLeftRef = useRef(secondsLeft);
   const isPausedRef = useRef(isPaused);
@@ -24,6 +24,15 @@ function App() {
   const togglePause = () => {
     setIsPaused((prevIsPaused) => !prevIsPaused);
     isPausedRef.current = !isPausedRef.current;
+
+    if (isPaused && cycleCount === 4 && mode === "pomodoro") {
+      // Reset back to pomodoro time
+      setSecondsLeft(0.1 * 60);
+      secondsLeftRef.current = 0.1 * 60;
+
+      // Reset cycle count
+      setCycleCount(0);
+    }
   };
 
   useEffect(() => {
@@ -55,6 +64,8 @@ function App() {
 
       if (cycleCount === 4 && nextMode === "pomodoro") {
         togglePause();
+        setSecondsLeft(0);
+        secondsLeftRef.current = 0;
       }
 
       // Increment cycle count on short break
@@ -83,10 +94,14 @@ function App() {
       : mode === "shortBreak"
         ? 0.05 * 60
         : 0.2 * 60;
-  const percentage = (secondsLeft / totalSeconds) * 100;
+  const percentage =
+    isPaused && cycleCount === 4 && mode === "pomodoro"
+      ? 100
+      : (secondsLeft / totalSeconds) * 100;
 
-  const minutes = Math.floor(secondsLeft / 60);
+  let minutes = Math.floor(secondsLeft / 60);
   let seconds = secondsLeft % 60;
+  if (minutes < 10) minutes = "0" + minutes;
   if (seconds < 10) seconds = "0" + seconds;
 
   return (
@@ -146,7 +161,11 @@ function App() {
                     onClick={togglePause}
                   >
                     <span className="ml-3 w-full text-center text-[0.875rem] font-bold uppercase leading-[1.063rem] tracking-[13.13px]">
-                      {isPaused ? "start" : "pause"}
+                      {isPaused
+                        ? cycleCount === 4 && mode === "pomodoro"
+                          ? "restart"
+                          : "start"
+                        : "pause"}
                     </span>
                   </button>
                 </div>
