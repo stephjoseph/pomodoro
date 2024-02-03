@@ -13,19 +13,52 @@ import iconCheck from "/assets/icon-check.svg";
 function App() {
   const [isPaused, setIsPaused] = useState(true);
   const [mode, setMode] = useState("pomodoro"); // pomodoro/shortBreak/null
-  const [secondsLeft, setSecondsLeft] = useState(0.1 * 60);
-  const [cycleCount, setCycleCount] = useState(3); // New state for cycle count
-  const [time, setTime] = useState({
-    pomodoro: 25,
-    shortBreak: 5,
-    longBreak: 15,
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [cycleCount, setCycleCount] = useState(0); // New state for cycle count
+  const [time, setTime] = useState(() => {
+    if ("time" in localStorage) {
+      return JSON.parse(localStorage.getItem("time"));
+    } else {
+      return {
+        pomodoro: 25,
+        shortBreak: 5,
+        longBreak: 15,
+      };
+    }
   });
-  const [font, setFont] = useState("sans");
-  const [color, setColor] = useState("salmon");
+  const [font, setFont] = useState(() => {
+    if ("font" in localStorage) {
+      return localStorage.getItem("font");
+    } else {
+      return "sans";
+    }
+  });
+  const [color, setColor] = useState(() => {
+    if ("color" in localStorage) {
+      return localStorage.getItem("color");
+    } else {
+      return "salmon";
+    }
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tempTime, setTempTime] = useState({
+    pomodoro: time.pomodoro,
+    shortBreak: time.shortBreak,
+    longBreak: time.longBreak,
+  });
+  const [tempFont, setTempFont] = useState(font);
+  const [tempColor, setTempColor] = useState(color);
 
   const secondsLeftRef = useRef(secondsLeft);
   const isPausedRef = useRef(isPaused);
   const modeRef = useRef(mode);
+
+  // Function to save settings to localStorage
+  const saveSettingsToLocalStorage = () => {
+    localStorage.setItem("time", JSON.stringify(time));
+    localStorage.setItem("font", font);
+    localStorage.setItem("color", color);
+  };
 
   const tick = () => {
     secondsLeftRef.current--;
@@ -38,52 +71,106 @@ function App() {
 
     if (isPaused && cycleCount === 4 && mode === "pomodoro") {
       // Reset back to pomodoro time
-      setSecondsLeft(0.1 * 60);
-      secondsLeftRef.current = 0.1 * 60;
+      setSecondsLeft(time.pomodoro * 60);
+      secondsLeftRef.current = time.pomodoro * 60;
 
       // Reset cycle count
       setCycleCount(0);
     }
   };
 
+  const toggleModal = () => {
+    // Reset temporary states when the modal is closed without applying changes
+    if (!isModalOpen) {
+      setTempTime({
+        pomodoro: time.pomodoro,
+        shortBreak: time.shortBreak,
+        longBreak: time.longBreak,
+      });
+      setTempFont(font);
+      setTempColor(color);
+    }
+
+    setIsModalOpen((prevIsModalOpen) => !prevIsModalOpen);
+  };
+
+  const handleClickOutside = (e) => {
+    // Check if the click is outside the modal content
+    if (e.target.classList.contains("modal-overlay")) {
+      toggleModal();
+    }
+  };
+
   const handleTimeChange = (e) => {
     const { name, value } = e.target;
-    setTime((prevTime) => ({
-      ...prevTime,
+
+    setTempTime((prevTempTime) => ({
+      ...prevTempTime,
       [name]: value,
     }));
   };
 
   const handleFontChange = (e) => {
-    setFont(e.target.value);
-    console.log(font);
+    setTempFont(e.target.value);
   };
 
   const handleColorChange = (e) => {
-    setColor(e.target.value);
+    setTempColor(e.target.value);
   };
 
   const handleIncrement = (field) => {
-    if (time[field] < 99) {
-      setTime((prevTime) => ({
-        ...prevTime,
-        [field]: prevTime[field] + 1,
+    if (tempTime[field] < 99) {
+      setTempTime((prevTempTime) => ({
+        ...prevTempTime,
+        [field]: prevTempTime[field] + 1,
       }));
     }
   };
 
   const handleDecrement = (field) => {
-    if (time[field] > 1) {
-      setTime((prevTime) => ({
-        ...prevTime,
-        [field]: prevTime[field] - 1 >= 1 ? prevTime[field] - 1 : 1,
+    if (tempTime[field] > 1) {
+      setTempTime((prevTempTime) => ({
+        ...prevTempTime,
+        [field]: prevTempTime[field] - 1 >= 1 ? prevTempTime[field] - 1 : 1,
       }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSettingsChange = (e) => {
     e.preventDefault();
+    toggleModal();
+
+    setFont(tempFont);
+    setColor(tempColor);
+
+    // Check if the time settings have changed
+    const isTimeChanged =
+      tempTime.pomodoro !== time.pomodoro ||
+      tempTime.shortBreak !== time.shortBreak ||
+      tempTime.longBreak !== time.longBreak;
+
+    // reset the app only when time settings have changed
+    if (isTimeChanged) {
+      setTime(tempTime);
+      setMode("pomodoro");
+      setCycleCount(0);
+      setSecondsLeft(tempTime.pomodoro * 60);
+      secondsLeftRef.current = tempTime.pomodoro * 60;
+      setIsPaused(true);
+      isPausedRef.current = true;
+    }
   };
+
+  useEffect(() => {
+    // Save settings to localStorage whenever relevant state changes
+    saveSettingsToLocalStorage();
+  }, [time, font, color, saveSettingsToLocalStorage]);
+
+  // set default time to pomodoro
+  useEffect(() => {
+    setSecondsLeft(time.pomodoro * 60);
+    secondsLeftRef.current = time.pomodoro * 60;
+  }, []);
 
   useEffect(() => {
     function switchMode() {
@@ -99,11 +186,11 @@ function App() {
       }
 
       if (nextMode === "pomodoro") {
-        nextSeconds = 0.1 * 60;
+        nextSeconds = time.pomodoro * 60;
       } else if (nextMode === "shortBreak") {
-        nextSeconds = 0.05 * 60;
+        nextSeconds = time.shortBreak * 60;
       } else {
-        nextSeconds = 0.2 * 60;
+        nextSeconds = time.longBreak * 60;
       }
 
       setMode(nextMode);
@@ -136,14 +223,47 @@ function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [cycleCount, togglePause]);
+  }, [cycleCount, togglePause, time]);
+
+  useEffect(() => {
+    // Add or remove the 'overflow-y-hidden' class based on the modal state
+    if (isModalOpen) {
+      document.body.classList.add("overflow-y-hidden");
+    } else {
+      document.body.classList.remove("overflow-y-hidden");
+    }
+
+    // Clean up the effect by removing the class when the component unmounts
+    return () => {
+      document.body.classList.remove("overflow-y-hidden");
+    };
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    switch (font) {
+      case "sans":
+        document.body.classList.remove("font-serif", "font-mono");
+        document.body.classList.add("font-sans");
+        break;
+      case "serif":
+        document.body.classList.remove("font-sans", "font-mono");
+        document.body.classList.add("font-serif");
+        break;
+      case "mono":
+        document.body.classList.remove("font-sans", "font-serif");
+        document.body.classList.add("font-mono");
+        break;
+      default:
+        null;
+    }
+  }, [font]);
 
   const totalSeconds =
     mode === "pomodoro"
-      ? 0.1 * 60
+      ? time.pomodoro * 60
       : mode === "shortBreak"
-        ? 0.05 * 60
-        : 0.2 * 60;
+        ? time.shortBreak * 60
+        : time.longBreak * 60;
   const percentage =
     isPaused && cycleCount === 4 && mode === "pomodoro"
       ? 100
@@ -157,7 +277,7 @@ function App() {
   return (
     <>
       <header className="w-full py-8">
-        <h1 className="text-center text-2xl font-bold leading-[1.875rem] tracking-normal text-light-grey">
+        <h1 className="text-center font-sans text-2xl font-bold leading-[1.875rem] tracking-normal text-light-grey">
           pomodoro
         </h1>
       </header>
@@ -165,17 +285,17 @@ function App() {
         <div className="flex w-full max-w-[327px] flex-col items-center gap-12">
           <div className="flex w-full rounded-[32px] bg-midnight-navy p-2">
             <div
-              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "pomodoro" ? "bg-salmon text-midnight-blue" : "bg-transparent text-light-grey/40"}`}
+              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "pomodoro" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
             >
               pomodoro
             </div>
             <div
-              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "shortBreak" ? "bg-salmon text-midnight-blue" : "bg-transparent text-light-grey/40"}`}
+              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "shortBreak" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
             >
               short break
             </div>
             <div
-              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "longBreak" ? "bg-salmon text-midnight-blue" : "bg-transparent text-light-grey/40"}`}
+              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "longBreak" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
             >
               long break
             </div>
@@ -196,13 +316,15 @@ function App() {
                   // pathTransition: 'none',
 
                   // Colors
-                  pathColor: "#F87070",
+                  pathColor: `${color === "salmon" ? "#F87070" : color === "turquoise" ? "#70F3F8" : color === "lavender" ? "#D881F8" : ""}`,
                   trailColor: "#161932",
                   backgroundColor: "#161932",
                 })}
               >
                 <div className="mt-3 flex flex-col items-center gap-2">
-                  <span className="text-[5rem] font-bold leading-[6.188rem] tracking-[-4px] text-light-grey">
+                  <span
+                    className={`text-[5rem]  leading-[6.188rem] text-light-grey ${font === "sans" ? "font-bold tracking-[-4px]" : font === "serif" ? "font-bold tracking-normal" : font === "mono" ? "font-normal tracking-[-10px]" : ""}`}
+                  >
                     {minutes + ":" + seconds}
                   </span>
                   <button
@@ -223,7 +345,7 @@ function App() {
             </div>
           </div>
         </div>
-        <button className="h-7 w-7">
+        <button className="h-7 w-7" onClick={toggleModal}>
           <img
             className="h-full w-full object-cover"
             src={iconSettings}
@@ -232,19 +354,26 @@ function App() {
         </button>
 
         {/* Settings Modal */}
-        <div className="fixed bottom-0 left-0 right-0 top-0 z-50 flex h-screen w-full items-center bg-[#0A0C1C]/50 px-6 py-12">
-          <div className="flex h-fit w-full flex-col rounded-[15px] bg-white">
+        <div
+          className={`modal-overlay fixed  bottom-0 left-0 right-0 top-0 z-50 flex h-screen w-full items-center  bg-[#0A0C1C]/50 px-6 py-12 opacity-0 transition-opacity duration-300  ${isModalOpen ? "pointer-events-auto opacity-100" : "pointer-events-none"}`}
+          onClick={handleClickOutside}
+        >
+          <div className="mx-auto flex h-fit w-full min-w-[300px] max-w-[327px] flex-col rounded-[15px] bg-white">
             <div className="flex items-center justify-between border-b border-solid border-[#E3E1E1] px-6 pb-7 pt-6">
               <h2 className="before: text-xl font-bold leading-[1.563rem] tracking-normal text-midnight-blue">
                 Settings
               </h2>
-              <button type="button w-[0.875rem] h-[0.875rem]">
+              <button
+                type="button"
+                onClick={toggleModal}
+                className="h-[0.875rem] w-[0.875rem]"
+              >
                 <img src={iconClose} alt="close icon" />
               </button>
             </div>
             <form
               className="relative flex flex-col items-center p-6"
-              onSubmit={handleSubmit}
+              onSubmit={handleSettingsChange}
             >
               <div className="flex w-full flex-col items-center gap-[1.125rem] border-b border-solid border-[#E3E1E1] pb-6">
                 <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue">
@@ -264,17 +393,22 @@ function App() {
                         type="number"
                         name="pomodoro"
                         id="pomodoro"
-                        min={1}
                         max={99}
-                        value={time.pomodoro}
+                        value={tempTime.pomodoro}
                         onChange={handleTimeChange}
                         inputMode="numeric"
                       />
                       <div className="absolute right-4 top-4 flex flex-col gap-2">
-                        <button onClick={() => handleIncrement("pomodoro")}>
+                        <button
+                          type="button"
+                          onClick={() => handleIncrement("pomodoro")}
+                        >
                           <img src={iconArrowUp} alt="arrow up icon" />
                         </button>
-                        <button onClick={() => handleDecrement("pomodoro")}>
+                        <button
+                          type="button"
+                          onClick={() => handleDecrement("pomodoro")}
+                        >
                           <img src={iconArrowDown} alt="arrow down icon" />
                         </button>
                       </div>
@@ -293,17 +427,22 @@ function App() {
                         type="number"
                         name="shortBreak"
                         id="shortBreak"
-                        min={1}
                         max={99}
-                        value={time.shortBreak}
+                        value={tempTime.shortBreak}
                         onChange={handleTimeChange}
                         inputMode="numeric"
                       />
                       <div className="absolute right-4 top-4 flex flex-col gap-2">
-                        <button onClick={() => handleIncrement("shortBreak")}>
+                        <button
+                          type="button"
+                          onClick={() => handleIncrement("shortBreak")}
+                        >
                           <img src={iconArrowUp} alt="arrow up icon" />
                         </button>
-                        <button onClick={() => handleDecrement("shortBreak")}>
+                        <button
+                          type="button"
+                          onClick={() => handleDecrement("shortBreak")}
+                        >
                           <img src={iconArrowDown} alt="arrow down icon" />
                         </button>
                       </div>
@@ -322,17 +461,22 @@ function App() {
                         type="number"
                         name="longBreak"
                         id="longBreak"
-                        min={1}
                         max={99}
-                        value={time.longBreak}
+                        value={tempTime.longBreak}
                         onChange={handleTimeChange}
                         inputMode="numeric"
                       />
                       <div className="absolute right-4 top-4 flex flex-col gap-2">
-                        <button onClick={() => handleIncrement("longBreak")}>
+                        <button
+                          type="button"
+                          onClick={() => handleIncrement("longBreak")}
+                        >
                           <img src={iconArrowUp} alt="arrow up icon" />
                         </button>
-                        <button onClick={() => handleDecrement("longBreak")}>
+                        <button
+                          type="button"
+                          onClick={() => handleDecrement("longBreak")}
+                        >
                           <img src={iconArrowDown} alt="arrow down icon" />
                         </button>
                       </div>
@@ -349,7 +493,7 @@ function App() {
                     <input
                       type="radio"
                       value="sans"
-                      checked={font === "sans"}
+                      checked={tempFont === "sans"}
                       onChange={handleFontChange}
                       className="hidden h-0 w-0"
                     />
@@ -360,7 +504,7 @@ function App() {
                     <input
                       type="radio"
                       value="serif"
-                      checked={font === "serif"}
+                      checked={tempFont === "serif"}
                       onChange={handleFontChange}
                       className="hidden h-0 w-0"
                     />
@@ -371,7 +515,7 @@ function App() {
                     <input
                       type="radio"
                       value="mono"
-                      checked={font === "mono"}
+                      checked={tempFont === "mono"}
                       onChange={handleFontChange}
                       className="hidden h-0 w-0"
                     />
@@ -388,7 +532,7 @@ function App() {
                     <input
                       type="radio"
                       value="salmon"
-                      checked={color === "salmon"}
+                      checked={tempColor === "salmon"}
                       onChange={handleColorChange}
                       className="peer hidden h-0 w-0"
                     />
@@ -403,7 +547,7 @@ function App() {
                     <input
                       type="radio"
                       value="turquoise"
-                      checked={color === "turquoise"}
+                      checked={tempColor === "turquoise"}
                       onChange={handleColorChange}
                       className="peer hidden h-0 w-0"
                     />
@@ -418,7 +562,7 @@ function App() {
                     <input
                       type="radio"
                       value="lavender"
-                      checked={color === "lavender"}
+                      checked={tempColor === "lavender"}
                       onChange={handleColorChange}
                       className="peer hidden h-0 w-0"
                     />
