@@ -6,11 +6,10 @@ import {
 import "react-circular-progressbar/dist/styles.css";
 import iconSettings from "/assets/icon-settings.svg";
 import iconClose from "/assets/icon-close.svg";
-import iconArrowUp from "/assets/icon-arrow-up.svg";
-import iconArrowDown from "/assets/icon-arrow-down.svg";
 import iconCheck from "/assets/icon-check.svg";
 
 function App() {
+  /* states */
   const [isPaused, setIsPaused] = useState(true);
   const [mode, setMode] = useState("pomodoro"); // pomodoro/shortBreak/null
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -49,10 +48,12 @@ function App() {
   const [tempFont, setTempFont] = useState(font);
   const [tempColor, setTempColor] = useState(color);
 
+  /* refs */
   const secondsLeftRef = useRef(secondsLeft);
   const isPausedRef = useRef(isPaused);
   const modeRef = useRef(mode);
 
+  /* helper functions */
   // Function to save settings to localStorage
   const saveSettingsToLocalStorage = () => {
     localStorage.setItem("time", JSON.stringify(time));
@@ -122,7 +123,7 @@ function App() {
     if (tempTime[field] < 99) {
       setTempTime((prevTempTime) => ({
         ...prevTempTime,
-        [field]: prevTempTime[field] + 1,
+        [field]: parseInt(prevTempTime[field], 10) + 1,
       }));
     }
   };
@@ -131,7 +132,10 @@ function App() {
     if (tempTime[field] > 1) {
       setTempTime((prevTempTime) => ({
         ...prevTempTime,
-        [field]: prevTempTime[field] - 1 >= 1 ? prevTempTime[field] - 1 : 1,
+        [field]:
+          parseInt(prevTempTime[field], 10) - 1 >= 1
+            ? parseInt(prevTempTime[field], 10) - 1
+            : 1,
       }));
     }
   };
@@ -161,6 +165,7 @@ function App() {
     }
   };
 
+  /* use effects */
   useEffect(() => {
     // Save settings to localStorage whenever relevant state changes
     saveSettingsToLocalStorage();
@@ -258,6 +263,7 @@ function App() {
     }
   }, [font]);
 
+  /* format time display */
   const totalSeconds =
     mode === "pomodoro"
       ? time.pomodoro * 60
@@ -332,7 +338,9 @@ function App() {
                     type="button"
                     onClick={togglePause}
                   >
-                    <span className="ml-3 w-full text-center text-[0.875rem] font-bold uppercase leading-[1.063rem] tracking-[13.13px]">
+                    <span
+                      className={`ml-3 w-full text-center text-[0.875rem] font-bold uppercase leading-[1.063rem] tracking-[13.13px] ${color === "salmon" ? "hover:text-salmon active:text-salmon" : color === "turquoise" ? "hover:text-turquoise active:text-turquoise" : color === "lavender" ? "hover:text-lavender active:text-lavender" : ""} transition-colors duration-300`}
+                    >
                       {isPaused
                         ? cycleCount === 4 && mode === "pomodoro"
                           ? "restart"
@@ -394,7 +402,7 @@ function App() {
                         name="pomodoro"
                         id="pomodoro"
                         max={99}
-                        value={tempTime.pomodoro}
+                        value={parseInt(tempTime.pomodoro, 10)}
                         onChange={handleTimeChange}
                         inputMode="numeric"
                       />
@@ -402,14 +410,40 @@ function App() {
                         <button
                           type="button"
                           onClick={() => handleIncrement("pomodoro")}
+                          className="group"
                         >
-                          <img src={iconArrowUp} alt="arrow up icon" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="7"
+                          >
+                            <path
+                              fill="none"
+                              stroke="#1E213F"
+                              strokeWidth="2"
+                              d="M1 6l6-4 6 4"
+                              className="opacity-25 group-active:opacity-100"
+                            />
+                          </svg>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDecrement("pomodoro")}
+                          className="group"
                         >
-                          <img src={iconArrowDown} alt="arrow down icon" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="7"
+                          >
+                            <path
+                              fill="none"
+                              stroke="#1E213F"
+                              strokeWidth="2"
+                              d="M1 1l6 4 6-4"
+                              className="opacity-25 group-active:opacity-100"
+                            />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -428,7 +462,7 @@ function App() {
                         name="shortBreak"
                         id="shortBreak"
                         max={99}
-                        value={tempTime.shortBreak}
+                        value={parseInt(tempTime.shortBreak, 10)}
                         onChange={handleTimeChange}
                         inputMode="numeric"
                       />
@@ -436,14 +470,40 @@ function App() {
                         <button
                           type="button"
                           onClick={() => handleIncrement("shortBreak")}
+                          className="group"
                         >
-                          <img src={iconArrowUp} alt="arrow up icon" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="7"
+                          >
+                            <path
+                              fill="none"
+                              stroke="#1E213F"
+                              strokeWidth="2"
+                              d="M1 6l6-4 6 4"
+                              className="opacity-25 group-active:opacity-100"
+                            />
+                          </svg>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDecrement("shortBreak")}
+                          className="group"
                         >
-                          <img src={iconArrowDown} alt="arrow down icon" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="7"
+                          >
+                            <path
+                              fill="none"
+                              stroke="#1E213F"
+                              strokeWidth="2"
+                              d="M1 1l6 4 6-4"
+                              className="opacity-25 group-active:opacity-100"
+                            />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -462,7 +522,7 @@ function App() {
                         name="longBreak"
                         id="longBreak"
                         max={99}
-                        value={tempTime.longBreak}
+                        value={parseInt(tempTime.longBreak, 10)}
                         onChange={handleTimeChange}
                         inputMode="numeric"
                       />
@@ -470,14 +530,40 @@ function App() {
                         <button
                           type="button"
                           onClick={() => handleIncrement("longBreak")}
+                          className="group"
                         >
-                          <img src={iconArrowUp} alt="arrow up icon" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="7"
+                          >
+                            <path
+                              fill="none"
+                              stroke="#1E213F"
+                              strokeWidth="2"
+                              d="M1 6l6-4 6 4"
+                              className="opacity-25 group-active:opacity-100"
+                            />
+                          </svg>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDecrement("longBreak")}
+                          className="group"
                         >
-                          <img src={iconArrowDown} alt="arrow down icon" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="7"
+                          >
+                            <path
+                              fill="none"
+                              stroke="#1E213F"
+                              strokeWidth="2"
+                              d="M1 1l6 4 6-4"
+                              className="opacity-25 group-active:opacity-100"
+                            />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -489,7 +575,7 @@ function App() {
                   Font
                 </h3>
                 <div className="flex items-center gap-4">
-                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-pale-grey font-sans text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 has-[:checked]:bg-midnight-navy has-[:checked]:text-white">
+                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-pale-grey font-sans text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 hover:outline hover:outline-1 hover:outline-offset-8 hover:outline-pale-grey active:outline  active:outline-1 active:outline-offset-8 active:outline-pale-grey has-[:checked]:bg-midnight-navy has-[:checked]:text-white">
                     <input
                       type="radio"
                       value="sans"
@@ -500,7 +586,7 @@ function App() {
                     <span>Aa</span>
                   </label>
 
-                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-pale-grey font-serif text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 has-[:checked]:bg-midnight-navy has-[:checked]:text-white">
+                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-pale-grey font-serif text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 hover:outline hover:outline-1 hover:outline-offset-8 hover:outline-pale-grey active:outline  active:outline-1 active:outline-offset-8 active:outline-pale-grey has-[:checked]:bg-midnight-navy has-[:checked]:text-white">
                     <input
                       type="radio"
                       value="serif"
@@ -511,7 +597,7 @@ function App() {
                     <span>Aa</span>
                   </label>
 
-                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-pale-grey font-mono text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 has-[:checked]:bg-midnight-navy has-[:checked]:text-white">
+                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-pale-grey font-mono text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 hover:outline hover:outline-1 hover:outline-offset-8 hover:outline-pale-grey active:outline  active:outline-1 active:outline-offset-8 active:outline-pale-grey has-[:checked]:bg-midnight-navy has-[:checked]:text-white">
                     <input
                       type="radio"
                       value="mono"
@@ -528,7 +614,7 @@ function App() {
                   Color
                 </h3>
                 <div className="flex items-center gap-4">
-                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-salmon text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300">
+                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-salmon text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 hover:outline hover:outline-1 hover:outline-offset-8 hover:outline-pale-grey active:outline  active:outline-1 active:outline-offset-8 active:outline-pale-grey">
                     <input
                       type="radio"
                       value="salmon"
@@ -543,7 +629,7 @@ function App() {
                     />
                   </label>
 
-                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-turquoise text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300">
+                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-turquoise text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 hover:outline hover:outline-1 hover:outline-offset-8 hover:outline-pale-grey active:outline  active:outline-1 active:outline-offset-8 active:outline-pale-grey">
                     <input
                       type="radio"
                       value="turquoise"
@@ -558,7 +644,7 @@ function App() {
                     />
                   </label>
 
-                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-lavender text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300">
+                  <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-lavender text-[0.938rem] leading-5 text-midnight-blue/[0.7297] transition-colors duration-300 hover:outline hover:outline-1 hover:outline-offset-8 hover:outline-pale-grey active:outline  active:outline-1 active:outline-offset-8 active:outline-pale-grey">
                     <input
                       type="radio"
                       value="lavender"
@@ -576,7 +662,7 @@ function App() {
               </div>
               <button
                 type="submit"
-                className={`absolute -bottom-[26.5px] flex h-[3.313rem] w-[8.75rem] items-center justify-center rounded-full text-base font-bold leading-5  text-white transition-colors duration-300 ${color === "salmon" ? "bg-salmon" : color === "turquoise" ? "bg-turquoise" : color === "lavender" ? "bg-lavender" : ""}`}
+                className={`absolute -bottom-[26.5px] flex h-[3.313rem] w-[8.75rem] items-center justify-center rounded-full text-base font-bold leading-5  text-white transition-colors duration-300 before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-full before:bg-white/20 before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100 ${color === "salmon" ? "bg-salmon" : color === "turquoise" ? "bg-turquoise" : color === "lavender" ? "bg-lavender" : ""}`}
               >
                 Apply
               </button>
