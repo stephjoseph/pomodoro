@@ -282,31 +282,31 @@ function App() {
 
   return (
     <>
-      <header className="w-full py-8">
-        <h1 className="text-center font-sans text-2xl font-bold leading-[1.875rem] tracking-normal text-light-grey">
+      <header className="w-full py-8 md:pb-14 md:pt-20">
+        <h1 className="text-center font-sans text-2xl font-bold leading-[1.875rem] tracking-normal text-light-grey md:text-[2rem] md:leading-10">
           pomodoro
         </h1>
       </header>
-      <main className="flex w-full flex-col items-center gap-20 px-6">
-        <div className="flex w-full max-w-[327px] flex-col items-center gap-12">
-          <div className="flex w-full rounded-[32px] bg-midnight-navy p-2">
+      <main className="flex w-full flex-col items-center gap-20 px-6 pb-12 md:gap-36 md:pb-[6.438rem]">
+        <div className="flex w-full max-w-[327px] flex-col items-center gap-12 md:max-w-[410px] md:gap-[6.875rem]">
+          <div className="flex w-full rounded-[32px] bg-midnight-navy p-2 md:max-w-[373px]">
             <div
-              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "pomodoro" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
+              className={`flex-1 rounded-[26.5px] py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300 md:text-[0.875rem] md:leading-[1.063rem]  ${mode === "pomodoro" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
             >
               pomodoro
             </div>
             <div
-              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "shortBreak" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
+              className={`flex-1 rounded-[26.5px] py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300 md:text-[0.875rem] md:leading-[1.063rem]  ${mode === "shortBreak" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
             >
               short break
             </div>
             <div
-              className={`flex-1 rounded-3xl  py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300  ${mode === "longBreak" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
+              className={`flex-1 rounded-[26.5px] py-4 text-center text-xs font-bold leading-[0.938rem] tracking-normal transition-colors duration-300 md:text-[0.875rem] md:leading-[1.063rem]  ${mode === "longBreak" ? `bg-${color} text-midnight-blue` : "bg-transparent text-light-grey/40"}`}
             >
               long break
             </div>
           </div>
-          <div className="h-[18.75rem] w-[18.75rem] rounded-full bg-gradient-to-br from-[#0E112A] to-[#2E325A] p-4 shadow-[0_-50px_-50px_100px_rgba(39,44,90,1),_0_50px_50px_100px_rgba(18,21,48,1)]">
+          <div className="h-[18.75rem] w-[18.75rem] rounded-full bg-gradient-to-br from-[#0E112A] to-[#2E325A] p-4 shadow-[0_-50px_-50px_100px_rgba(39,44,90,1),_0_50px_50px_100px_rgba(18,21,48,1)] md:h-[25.625rem] md:w-[25.625rem]">
             <div className="h-full w-full rounded-full bg-midnight-navy p-[0.625rem]">
               <CircularProgressbarWithChildren
                 value={percentage}
@@ -327,9 +327,9 @@ function App() {
                   backgroundColor: "#161932",
                 })}
               >
-                <div className="mt-3 flex flex-col items-center gap-2">
+                <div className="mt-3 flex flex-col items-center gap-2 md:gap-[0.875rem]">
                   <span
-                    className={`text-[5rem]  leading-[6.188rem] text-light-grey ${font === "sans" ? "font-bold tracking-[-4px]" : font === "serif" ? "font-bold tracking-normal" : font === "mono" ? "font-normal tracking-[-10px]" : ""}`}
+                    className={`text-[5rem]  leading-[6.188rem] text-light-grey md:text-[6.25rem] md:leading-[7.75rem] ${font === "sans" ? "font-bold tracking-[-4px]" : font === "serif" ? "font-bold tracking-normal" : font === "mono" ? "font-normal tracking-[-10px]" : ""}`}
                   >
                     {minutes + ":" + seconds}
                   </span>
@@ -339,7 +339,7 @@ function App() {
                     onClick={togglePause}
                   >
                     <span
-                      className={`ml-3 w-full text-center text-[0.875rem] font-bold uppercase leading-[1.063rem] tracking-[13.13px] ${color === "salmon" ? "hover:text-salmon active:text-salmon" : color === "turquoise" ? "hover:text-turquoise active:text-turquoise" : color === "lavender" ? "hover:text-lavender active:text-lavender" : ""} transition-colors duration-300`}
+                      className={`ml-3 w-full text-center text-[0.875rem] font-bold uppercase leading-[1.063rem] tracking-[13.13px] md:text-base md:leading-[1.313rem] md:tracking-[15px] ${color === "salmon" ? "hover:text-salmon active:text-salmon" : color === "turquoise" ? "hover:text-turquoise active:text-turquoise" : color === "lavender" ? "hover:text-lavender active:text-lavender" : ""} transition-colors duration-300`}
                     >
                       {isPaused
                         ? cycleCount === 4 && mode === "pomodoro"
@@ -363,12 +363,12 @@ function App() {
 
         {/* Settings Modal */}
         <div
-          className={`modal-overlay fixed  bottom-0 left-0 right-0 top-0 z-50 flex h-screen w-full items-center  bg-[#0A0C1C]/50 px-6 py-12 opacity-0 transition-opacity duration-300  ${isModalOpen ? "pointer-events-auto opacity-100" : "pointer-events-none"}`}
+          className={`modal-overlay fixed  bottom-0 left-0 right-0 top-0 z-50 flex h-screen w-full items-center bg-[#0A0C1C]/50 px-6 py-12 opacity-0 transition-opacity duration-300 md:px-[7.125rem] md:py-[16.688rem]  ${isModalOpen ? "pointer-events-auto opacity-100" : "pointer-events-none"}`}
           onClick={handleClickOutside}
         >
-          <div className="mx-auto flex h-fit w-full min-w-[300px] max-w-[327px] flex-col rounded-[15px] bg-white">
-            <div className="flex items-center justify-between border-b border-solid border-[#E3E1E1] px-6 pb-7 pt-6">
-              <h2 className="before: text-xl font-bold leading-[1.563rem] tracking-normal text-midnight-blue">
+          <div className="mx-auto flex h-fit w-full min-w-[300px] max-w-[327px] flex-col rounded-[15px] bg-white md:max-w-[540px] md:rounded-[25px]">
+            <div className="flex items-center justify-between border-b border-solid border-[#E3E1E1] px-6 pb-7 pt-6 md:px-10 md:py-8">
+              <h2 className="before: text-xl font-bold leading-[1.563rem] tracking-normal text-midnight-blue md:text-[1.75rem] md:leading-[2.188rem]">
                 Settings
               </h2>
               <button
@@ -380,24 +380,24 @@ function App() {
               </button>
             </div>
             <form
-              className="relative flex flex-col items-center p-6"
+              className="relative flex flex-col items-center p-6 md:px-10 md:py-6"
               onSubmit={handleSettingsChange}
             >
-              <div className="flex w-full flex-col items-center gap-[1.125rem] border-b border-solid border-[#E3E1E1] pb-6">
-                <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue">
+              <div className="flex w-full flex-col items-center gap-[1.125rem] border-b border-solid border-[#E3E1E1] pb-6 md:items-start md:gap-[1.625rem]">
+                <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue md:text-[0.813rem] md:leading-4 md:tracking-[5px]">
                   Time (minutes)
                 </h3>
-                <div className="flex w-full flex-col gap-2">
-                  <div className="flex w-full items-center justify-between">
+                <div className="flex w-full flex-col gap-2 md:flex-row md:gap-5">
+                  <div className="flex w-full items-center justify-between md:flex-col md:items-start md:justify-start md:gap-[0.625rem]">
                     <label
                       className="text-xs font-bold leading-[0.938rem] tracking-normal text-midnight-blue/40"
                       htmlFor="pomodoro"
                     >
                       pomodoro
                     </label>
-                    <div className="relative flex w-1/2 items-center">
+                    <div className="relative flex w-1/2 items-center md:w-full">
                       <input
-                        className="w-full rounded-[10px] bg-pale-grey p-4 text-[0.875rem] font-bold leading-[1.063rem] text-midnight-blue focus:outline-none"
+                        className="w-full rounded-[10px] bg-pale-grey p-4 text-[0.875rem] font-bold leading-[1.063rem] text-midnight-blue focus:outline-none md:pb-5"
                         type="number"
                         name="pomodoro"
                         id="pomodoro"
@@ -448,16 +448,16 @@ function App() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex w-full items-center justify-between">
+                  <div className="flex w-full items-center justify-between md:flex-col md:items-start md:justify-start md:gap-[0.625rem]">
                     <label
                       className="text-xs font-bold leading-[0.938rem] tracking-normal text-midnight-blue/40"
                       htmlFor="shortBreak"
                     >
                       short break
                     </label>
-                    <div className="relative flex w-1/2 items-center">
+                    <div className="relative flex w-1/2 items-center md:w-full">
                       <input
-                        className="w-full rounded-[10px] bg-pale-grey p-4 text-[0.875rem] font-bold leading-[1.063rem] text-midnight-blue focus:outline-none"
+                        className="w-full rounded-[10px] bg-pale-grey p-4 text-[0.875rem] font-bold leading-[1.063rem] text-midnight-blue focus:outline-none md:pb-5"
                         type="number"
                         name="shortBreak"
                         id="shortBreak"
@@ -508,16 +508,16 @@ function App() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex w-full items-center justify-between">
+                  <div className="flex w-full items-center justify-between md:flex-col md:items-start md:justify-start md:gap-[0.625rem]">
                     <label
                       className="text-xs font-bold leading-[0.938rem] tracking-normal text-midnight-blue/40"
                       htmlFor="longBreak"
                     >
                       long break
                     </label>
-                    <div className="relative flex w-1/2 items-center">
+                    <div className="relative flex w-1/2 items-center md:w-full">
                       <input
-                        className="w-full rounded-[10px] bg-pale-grey p-4 text-[0.875rem] font-bold leading-[1.063rem] text-midnight-blue focus:outline-none"
+                        className="w-full rounded-[10px] bg-pale-grey p-4 text-[0.875rem] font-bold leading-[1.063rem] text-midnight-blue focus:outline-none md:pb-5"
                         type="number"
                         name="longBreak"
                         id="longBreak"
@@ -570,8 +570,8 @@ function App() {
                   </div>
                 </div>
               </div>
-              <div className="flex w-full flex-col items-center gap-[1.125rem] border-b border-solid border-[#E3E1E1] py-6">
-                <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue">
+              <div className="flex w-full flex-col items-center gap-[1.125rem] border-b border-solid border-[#E3E1E1] py-6 md:flex-row md:justify-between">
+                <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue md:text-[0.813rem] md:leading-4 md:tracking-[5px]">
                   Font
                 </h3>
                 <div className="flex items-center gap-4">
@@ -609,8 +609,8 @@ function App() {
                   </label>
                 </div>
               </div>
-              <div className="flex w-full flex-col items-center gap-[1.125rem] pb-[2.156rem] pt-4">
-                <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue">
+              <div className="md: flex w-full flex-col items-center justify-between gap-[1.125rem] pb-[2.156rem] pt-4 md:flex-row">
+                <h3 className="text-[0.688rem] font-bold uppercase leading-[0.875rem] tracking-[4.23px] text-midnight-blue md:text-[0.813rem] md:leading-4 md:tracking-[5px]">
                   Color
                 </h3>
                 <div className="flex items-center gap-4">
